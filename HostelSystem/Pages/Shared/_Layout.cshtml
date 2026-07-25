@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Hostel System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HostelSystem.styles.css" asp-append-version="true" />
+</head>
+<body class="@(User.IsInRole("Admin") ? "admin-body" : User.Identity.IsAuthenticated ? "student-body" : "")">
+    <header>
+        <nav class="navbar navbar-expand-sm main-nav">
+            <div class="container">
+                <a class="nav-brand" asp-area="" asp-page="/Index">
+                    HostelSystem
+                </a>
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav align-items-center">
+
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom"
+                               asp-area="" asp-page="/Index">Home</a>
+                        </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @if (!User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-custom"
+                                       asp-page="/Complaints/Lodge">Lodge a Complaint</a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-custom nav-link-admin"
+                                       asp-page="/Admin/Dashboard">Admin Dashboard</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-custom"
+                                       asp-page="/Complaints/MyComplaints">My Complaints</a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom nav-link-user"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Manage/Index">
+                                    @User.Identity.Name
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form method="post"
+                                      asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      asp-route-returnUrl="/">
+                                    <button type="submit" class="nav-link-logout">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item">
+                            <button class="dark-mode-toggle"
+                                    id="darkModeToggle"
+                                    onclick="toggleDarkMode()"
+                                    title="Toggle dark mode">
+                                <span id="darkModeIcon"> DARK</span>
+                            </button>
+                        </li>
+
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Register">Register</a>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="page-wrapper">
+        <main role="main" class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+   
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+         (function () {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        const icon = document.getElementById('darkModeIcon');
+        if (icon) icon.textContent = 'LIGHT';
+    }
+})();
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    const icon = document.getElementById('darkModeIcon');
+    if (icon) icon.textContent = isDark ? 'LIGHT' : 'DARK';
+}
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,67 @@
+﻿@page "{id:int}"
+@model HostelSystem.Pages.Complaints.DetailsModel
+
+@{
+    ViewData["Title"] = "Complaint Details";
+}
+
+<div class="details-container">
+
+    <a asp-page="/Complaints/MyComplaints" class="back-link">
+        ← Back to My Complaints
+    </a>
+
+    <div class="details-card">
+        <div class="details-header">
+            <div>
+                <h2>@Model.Complaint.Title</h2>
+                <p class="details-meta">
+                    Room @Model.Complaint.RoomNumber &nbsp;·&nbsp;
+                    @Model.Complaint.Category &nbsp;·&nbsp;
+                    Submitted @Model.Complaint.DateSubmitted.ToString("dd MMM yyyy, h:mm tt")
+                </p>
+            </div>
+            <span class="status-badge status-@Model.Complaint.Status.Replace(" ", "-").ToLower()">
+                @Model.Complaint.Status
+            </span>
+        </div>
+
+        <div class="details-body">
+            <h4>Description</h4>
+            <p>@Model.Complaint.Description</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Complaint.ImagePath))
+        {
+            <div class="details-image">
+                <h4>Photo Evidence</h4>
+                <img src="@Model.Complaint.ImagePath"
+                     alt="Complaint photo"
+                     class="complaint-photo" />
+            </div>
+        }
+    </div>
+
+    <div class="timeline-section">
+        <h3>Status History</h3>
+
+        <div class="timeline">
+            @foreach (var history in Model.Complaint.StatusHistories)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-dot dot-@history.Status.Replace(" ", "-").ToLower()"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-status">@history.Status</span>
+                            <span class="timeline-date">
+                                @history.ChangedAt.ToString("dd MMM yyyy, h:mm tt")
+                            </span>
+                        </div>
+                        <p class="timeline-note">@history.Note</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

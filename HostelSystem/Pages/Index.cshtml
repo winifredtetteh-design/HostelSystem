@@ -1,0 +1,16 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center hero">
+    <h1>HOSTEL COMPLAINT MANAGEMENT SYSTEM</h1>
+    <p>Welcome. What would you like to do?</p>
+
+    <div class="action-buttons">
+        <a asp-page="/Complaints/Lodge" class="btn-primary-custom">Lodge a Complaint</a>
+        <a asp-page="/Complaints/MyComplaints" class="btn-secondary-custom">Track My Complaints</a>
+    </div>
+</div>

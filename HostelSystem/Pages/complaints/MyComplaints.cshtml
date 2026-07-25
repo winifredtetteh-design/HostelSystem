@@ -1,0 +1,46 @@
+﻿@page
+@model HostelSystem.Pages.Complaints.MyComplaintsModel
+
+@{
+    ViewData["Title"] = "My Complaints";
+}
+
+<div class="complaints-container">
+    <h2>My Complaints</h2>
+    <p class="complaints-subtitle">Here are all the complaints you have lodged.</p>
+
+    <a asp-page="/Complaints/Lodge" class="btn-new-complaint">+ Lodge a New Complaint</a>
+
+    @if (Model.Complaints.Count == 0)
+    {
+        <div class="no-complaints">
+            <p>You have not lodged any complaints yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="complaints-list">
+            @foreach (var complaint in Model.Complaints)
+            {
+                <a asp-page="/Complaints/Details"
+                   asp-route-id="@complaint.Id"
+                   class="complaint-card-link">
+                    <div class="complaint-card">
+                        <div class="complaint-header">
+                            <h3>@complaint.Title</h3>
+                            <span class="status-badge status-@complaint.Status.Replace(" ", "-").ToLower()">
+                                @complaint.Status
+                            </span>
+                        </div>
+                        <div class="complaint-details">
+                            <span><strong>Category:</strong> @complaint.Category</span>
+                            <span><strong>Room:</strong> @complaint.RoomNumber</span>
+                            <span><strong>Submitted:</strong> @complaint.DateSubmitted.ToString("dd MMM yyyy")</span>
+                        </div>
+                        <p class="complaint-description">@complaint.Description</p>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

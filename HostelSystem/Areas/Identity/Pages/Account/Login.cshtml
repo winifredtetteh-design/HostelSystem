@@ -1,0 +1,74 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="identity-page">
+    <h1>Log in</h1>
+    <hr />
+
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Input.Email"
+                   class="form-control"
+                   autocomplete="username"
+                   aria-required="true"
+                   placeholder="name@example.com" />
+            <label asp-for="Input.Email">Email address</label>
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3 password-field-wrap">
+            <input asp-for="Input.Password"
+                   class="form-control"
+                   id="loginPassword"
+                   autocomplete="current-password"
+                   aria-required="true"
+                   placeholder="password" />
+            <label asp-for="Input.Password">Password</label>
+            <button type="button"
+                    class="show-password-btn"
+                    onclick="togglePassword('loginPassword', this)">
+                Show
+            </button>
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" asp-for="Input.RememberMe" />
+            <label class="form-check-label" asp-for="Input.RememberMe">
+                Remember me
+            </label>
+        </div>
+
+        <button id="login-submit" type="submit" class="btn-submit">
+            Log in
+        </button>
+
+        <div class="login-links">
+            <a asp-page="./ForgotPassword">Forgot your password?</a>
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                Register as a new user
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show';
+            }
+        }
+    </script>
+}

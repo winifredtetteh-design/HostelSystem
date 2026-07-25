@@ -1,0 +1,24 @@
+@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Registration Pending";
+}
+
+<div class="identity-page pending-page">
+    <h1 class="pending-title">Registration Submitted </h1>
+    <hr />
+    <div class="pending-approval">
+        <div class="pending-icon">...</div>
+        <h3>Your account is pending approval</h3>
+        <p>
+            Thank you for registering. Your account has been created but
+            needs to be approved by a hostel administrator before you
+            can log in.
+        </p>
+        <p>
+            Please check back later or contact your hostel administrator
+            to confirm your approval status.
+        </p>
+        <a asp-page="/Index" class="btn-back-home">Back to Home</a>
+    </div>
+</div>

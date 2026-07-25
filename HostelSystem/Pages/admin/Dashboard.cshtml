@@ -1,0 +1,255 @@
+﻿@page
+@model HostelSystem.Pages.Admin.DashboardModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <h2>Admin Dashboard</h2>
+        <p class="admin-subtitle">Manage complaints and student accounts.</p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error">@TempData["Error"]</div>
+    }
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="stat-card">
+            <span class="stat-number">@Model.TotalComplaints</span>
+            <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">@Model.PendingCount</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">@Model.InProgressCount</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card stat-card-resolved">
+            <span class="stat-number">@Model.ResolvedCount</span>
+            <span class="stat-label">Resolved</span>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+        <button class="admin-tab active"
+                onclick="switchTab('complaints', this)">
+            Complaints
+        </button>
+        <button class="admin-tab"
+                onclick="switchTab('students', this)">
+            Students
+        </button>
+        <button class="admin-tab"
+                onclick="switchTab('pending', this)">
+            Pending Approvals
+            @if (Model.PendingStudents.Count > 0)
+            {
+                <span class="pending-badge">@Model.PendingStudents.Count</span>
+            }
+        </button>
+    </div>
+
+    <!-- Complaints Tab -->
+    <div id="tab-complaints" class="tab-content">
+        @if (Model.Complaints.Count == 0)
+        {
+            <div class="no-complaints">
+                No complaints have been submitted yet.
+            </div>
+        }
+        else
+        {
+            <div class="admin-complaints-list">
+                @foreach (var complaint in Model.Complaints)
+                {
+                    <div class="admin-complaint-card">
+                        <div class="admin-complaint-header">
+                            <div>
+                                <h3>@complaint.Title</h3>
+                                <p class="admin-complaint-meta">
+                                    Room @complaint.RoomNumber &nbsp;·&nbsp;
+                                    @complaint.Category &nbsp;·&nbsp;
+                                    @complaint.DateSubmitted.ToString("dd MMM yyyy, h:mm tt")
+                                </p>
+                            </div>
+                            <span class="status-badge status-@complaint.Status.Replace(" ", "-").ToLower()">
+                                @complaint.Status
+                            </span>
+                        </div>
+
+                        <p class="admin-complaint-desc">@complaint.Description</p>
+
+                        @if (!string.IsNullOrEmpty(complaint.ImagePath))
+                        {
+                            <img src="@complaint.ImagePath"
+                                 alt="Complaint photo"
+                                 class="admin-complaint-photo" />
+                        }
+
+                        <form method="post"
+                              asp-page-handler="UpdateStatus"
+                              class="update-status-form">
+                            <input type="hidden" name="complaintId"
+                                   value="@complaint.Id" />
+                            <div class="update-row">
+                                <select name="newStatus"
+                                        class="form-control status-select">
+                                    <option value="Pending"
+                                            selected="@(complaint.Status == "Pending")">
+                                        Pending
+                                    </option>
+                                    <option value="In Progress"
+                                            selected="@(complaint.Status == "In Progress")">
+                                        In Progress
+                                    </option>
+                                    <option value="Resolved"
+                                            selected="@(complaint.Status == "Resolved")">
+                                        Resolved
+                                    </option>
+                                </select>
+                                <input type="text" name="note"
+                                       class="form-control note-input"
+                                       placeholder="Add a note (optional)" />
+                                <button type="submit" class="btn-update">
+                                    Update
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Students Tab -->
+    <div id="tab-students" class="tab-content" style="display:none;">
+
+        <div class="add-student-card">
+            <h3>Add New Student</h3>
+            <form method="post" asp-page-handler="AddStudent"
+                  class="add-student-form">
+                <div class="add-student-row">
+                    <input type="email" name="email"
+                           class="form-control"
+                           placeholder="Student email address"
+                           required />
+                    <input type="text" name="password"
+                           class="form-control"
+                           placeholder="Temporary password (min 6 chars, 1 digit)"
+                           required />
+                    <button type="submit" class="btn-add-student">
+                        Add Student
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        @if (Model.Students.Count == 0)
+        {
+            <div class="no-complaints">
+                No approved students yet.
+            </div>
+        }
+        else
+        {
+            <div class="students-list">
+                @foreach (var student in Model.Students)
+                {
+                    <div class="student-card">
+                        <div class="student-info">
+                            <span class="student-email">@student.Email</span>
+                            <span class="student-since">
+                                ID: @student.Id.Substring(0, 8)...
+                            </span>
+                        </div>
+                        <form method="post"
+                              asp-page-handler="RemoveStudent"
+                              onsubmit="return confirm('Remove @student.Email? This will also delete all their complaints.')">
+                            <input type="hidden" name="userId"
+                                   value="@student.Id" />
+                            <button type="submit" class="btn-remove">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Pending Approvals Tab -->
+    <div id="tab-pending" class="tab-content" style="display:none;">
+
+        @if (Model.PendingStudents.Count == 0)
+        {
+            <div class="no-complaints">
+                No pending registrations at this time.
+            </div>
+        }
+        else
+        {
+            <div class="students-list">
+                @foreach (var student in Model.PendingStudents)
+                {
+                    <div class="student-card">
+                        <div class="student-info">
+                            <span class="student-email">@student.Email</span>
+                            <span class="student-since pending-label">
+                                Awaiting approval
+                            </span>
+                        </div>
+                        <div class="approval-actions">
+                            <form method="post"
+                                  asp-page-handler="ApproveStudent"
+                                  style="display:inline;">
+                                <input type="hidden" name="userId"
+                                       value="@student.Id" />
+                                <button type="submit" class="btn-approve">
+                                    Approve
+                                </button>
+                            </form>
+                            <form method="post"
+                                  asp-page-handler="RejectStudent"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('Reject and delete @student.Email?')">
+                                <input type="hidden" name="userId"
+                                       value="@student.Id" />
+                                <button type="submit" class="btn-remove">
+                                    Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.style.display = 'none';
+            });
+            document.querySelectorAll('.admin-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.getElementById('tab-' + tab).style.display = 'block';
+            btn.classList.add('active');
+        }
+    </script>
+}

@@ -1,0 +1,128 @@
+﻿@page
+@model HostelSystem.Pages.Complaints.LodgeModel
+
+@{
+    ViewData["Title"] = "Lodge a Complaint";
+}
+
+<div class="lodge-container">
+    <h2>Lodge a Complaint</h2>
+    <p class="lodge-subtitle">Fill in the details below and we'll look into it.</p>
+
+    <form method="post" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label asp-for="Input.Title">Title</label>
+            <input asp-for="Input.Title" class="form-control"
+                   placeholder="e.g. Broken window in room" />
+            <span asp-validation-for="Input.Title" class="error-text"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.Category">Category</label>
+            <select asp-for="Input.Category" class="form-control">
+                <option value="">-- Select a category --</option>
+                <option value="Plumbing">Plumbing</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Cleaning">Cleaning</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Input.Category" class="error-text"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.RoomNumber">Room Number</label>
+            <input asp-for="Input.RoomNumber" class="form-control"
+                   placeholder="e.g. A104" />
+            <span asp-validation-for="Input.RoomNumber" class="error-text"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.Description">Description</label>
+            <textarea asp-for="Input.Description" class="form-control"
+                      rows="4"
+                      placeholder="Describe the issue in detail"></textarea>
+            <span asp-validation-for="Input.Description" class="error-text"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Photo Evidence (optional)</label>
+            <div class="upload-box" id="uploadBox">
+                <span class="upload-icon">📎</span>
+                <p class="upload-text">Click to browse or drag and drop</p>
+                <p class="upload-hint">JPG, PNG, GIF or WEBP — max 5MB</p>
+            </div>
+            <input asp-for="Input.Image"
+                   type="file"
+                   accept="image/*"
+                   id="imageInput"
+                   class="hidden-file-input"
+                   onchange="previewImage(event)" />
+            <div id="previewWrap" class="preview-wrap">
+                <img id="imagePreview" src="" alt="Preview" class="image-preview" />
+                <button type="button" class="remove-image" onclick="removeImage()">
+                    ✕ Remove image
+                </button>
+            </div>
+            <span asp-validation-for="Input.Image" class="error-text"></span>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Complaint</button>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const uploadBox = document.getElementById('uploadBox');
+        const imageInput = document.getElementById('imageInput');
+        const previewWrap = document.getElementById('previewWrap');
+
+        uploadBox.addEventListener('click', () => imageInput.click());
+
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('drag-over');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('drag-over');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                imageInput.files = dt.files;
+                showPreview(file);
+            }
+        });
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) showPreview(file);
+        }
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('imagePreview').src = e.target.result;
+                previewWrap.style.display = 'block';
+                uploadBox.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            imageInput.value = '';
+            previewWrap.style.display = 'none';
+            uploadBox.style.display = 'block';
+            document.getElementById('imagePreview').src = '';
+        }
+    </script>
+}
