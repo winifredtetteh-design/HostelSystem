@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model HostelSystem.Pages.Admin.DashboardModel
 
 @{
@@ -11,15 +11,6 @@
         <h2>Admin Dashboard</h2>
         <p class="admin-subtitle">Manage complaints and student accounts.</p>
     </div>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert-success">@TempData["Success"]</div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert-error">@TempData["Error"]</div>
-    }
 
     <!-- Stats Strip -->
     <div class="stats-strip">
@@ -71,10 +62,17 @@
         }
         else
         {
+            <div class="complaint-filters" style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <button class="filter-btn active" style="padding: 5px 15px; border-radius: 15px; border: 1px solid var(--color-border); background: var(--color-card); cursor: pointer;" onclick="filterComplaints('All', this)">All</button>
+                <button class="filter-btn" style="padding: 5px 15px; border-radius: 15px; border: 1px solid var(--color-border); background: var(--color-card); cursor: pointer;" onclick="filterComplaints('Pending', this)">Pending</button>
+                <button class="filter-btn" style="padding: 5px 15px; border-radius: 15px; border: 1px solid var(--color-border); background: var(--color-card); cursor: pointer;" onclick="filterComplaints('In Progress', this)">In Progress</button>
+                <button class="filter-btn" style="padding: 5px 15px; border-radius: 15px; border: 1px solid var(--color-border); background: var(--color-card); cursor: pointer;" onclick="filterComplaints('Resolved', this)">Resolved</button>
+            </div>
+
             <div class="admin-complaints-list">
                 @foreach (var complaint in Model.Complaints)
                 {
-                    <div class="admin-complaint-card">
+                    <div class="admin-complaint-card" data-status="@complaint.Status">
                         <div class="admin-complaint-header">
                             <div>
                                 <h3>@complaint.Title</h3>
@@ -250,6 +248,25 @@
             });
             document.getElementById('tab-' + tab).style.display = 'block';
             btn.classList.add('active');
+        }
+
+        function filterComplaints(status, btn) {
+            document.querySelectorAll('.filter-btn').forEach(t => {
+                t.style.background = 'var(--color-card)';
+                t.style.borderColor = 'var(--color-border)';
+                t.classList.remove('active');
+            });
+            btn.style.background = 'var(--color-sage-light)';
+            btn.style.borderColor = 'var(--color-primary)';
+            btn.classList.add('active');
+
+            document.querySelectorAll('.admin-complaint-card').forEach(card => {
+                if (status === 'All' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
     </script>
 }

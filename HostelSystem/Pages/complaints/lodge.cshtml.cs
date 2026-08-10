@@ -59,6 +59,10 @@ namespace HostelSystem.Pages.Complaints
                 var extension = Path.GetExtension(Input.Image.FileName);
                 var uniqueFileName = $"{Guid.NewGuid()}{extension}";
                 var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "complaints");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
                 var fullPath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 using (var stream = new FileStream(fullPath, FileMode.Create))

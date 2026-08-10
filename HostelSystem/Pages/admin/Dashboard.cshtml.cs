@@ -13,11 +13,13 @@ namespace HostelSystem.Pages.Admin
     {
         private readonly AppDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
-        public DashboardModel(AppDbContext db, UserManager<IdentityUser> userManager)
+        public DashboardModel(AppDbContext db, UserManager<IdentityUser> userManager, IWebHostEnvironment environment)
         {
             _db = db;
             _userManager = userManager;
+            _environment = environment;
         }
 
         // All complaints from all students
@@ -37,9 +39,10 @@ namespace HostelSystem.Pages.Admin
 
         public async Task OnGetAsync()
         {
-            // Fetch all complaints newest first
+            // Fetch top 50 complaints newest first to avoid loading everything
             Complaints = await _db.Complaints
                 .OrderByDescending(c => c.DateSubmitted)
+                .Take(50)
                 .ToListAsync();
 
             // Calculate stats
@@ -116,7 +119,21 @@ namespace HostelSystem.Pages.Admin
             }
 
             // Delete their complaints first
-            var complaints = _db.Complaints.Where(c => c.UserId == userId);
+            var complaints = _db.Complaints.Where(c => c.UserId == userId).ToList();
+            
+            // Delete associated image files
+            foreach (var complaint in complaints)
+            {
+                if (!string.IsNullOrEmpty(complaint.ImagePath))
+                {
+                    var imagePath = Path.Combine(_environment.WebRootPath, complaint.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+            }
+
             _db.Complaints.RemoveRange(complaints);
             await _db.SaveChangesAsync();
 
