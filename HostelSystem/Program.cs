@@ -41,6 +41,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    
+    // Apply any pending migrations to create the tables in the new cloud database
+    var context = services.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    
     await SeedData.InitialiseAsync(services);
 }
 
